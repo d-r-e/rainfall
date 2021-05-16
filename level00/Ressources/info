@@ -1,4 +1,7 @@
 there is a binary executable "level0" in home folder
+
+    scp -P 4242 level0@10.11.200.132:/home/user/level0/level0 .
+
 Reverse engineering it (with Ghydra or Binary Ninja) shows it checks that argv1 is equal to 423 and then it executes a shell
 "/bin/sh" as level1
 
@@ -21,8 +24,8 @@ dr-x--x--x  1 root   root    340 Sep 23  2015 ..
 
 there is a hidden file called .pass on level1 folder
 
-$ cat /home/user/level1/.pass
-1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
+    $ cat /home/user/level1/.pass
+    1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
 
 bingo.
 
