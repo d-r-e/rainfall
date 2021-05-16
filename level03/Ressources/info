@@ -1,0 +1,18 @@
+decompiling the binary in level3 home folder we get:
+
+/--------------------------------------------------------/
+    int32_t main(int32_t argc, char** argv, char** envp)
+
+        08048526  return v()
+/--------------------------------------------------------/
+    uint32_t v()
+
+        080484c7  void var_20c
+        080484c7  fgets(&var_20c, 0x200, *stdin)
+        080484d5  printf(&var_20c)
+        080484da  uint32_t eax_1 = *m
+        080484df  if (eax_1 == 0x40)
+        08048507      fwrite(0x8048600, 1, 0xc, *stdout)  {"Wait what?!\n"}
+        08048513      eax_1 = system(0x804860d)  {"/bin/sh"}
+        08048519  return eax_1
+/--------------------------------------------------------/
