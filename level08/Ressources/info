@@ -1,0 +1,12 @@
+level8@RainFall:~$ ./level8 
+(nil), (nil)
+
+service -> auth -> login -> 
+
+
+login -> segmentation fault
+
+auth login
+service reset
+
+password?
