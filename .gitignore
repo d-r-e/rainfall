@@ -1,4 +1,5 @@
-
+*.pdf
+*.iso
 ._.DS_Store
 # Prerequisites
 *.d
